@@ -1,19 +1,20 @@
 pipeline {
   agent {
     docker {
-      image 'docker:24-git'                            // มี git ในตัว
+      image 'docker:24-git' // มี git
       args "-u 0 -e HOME=/tmp -e DOCKER_CONFIG=/tmp/.docker -v /var/run/docker.sock:/var/run/docker.sock"
     }
   }
+
   options { timestamps(); skipDefaultCheckout(true) }
 
-  stage('Checkout') {
-  steps {
-    git branch: 'main',
-        url: 'https://github.com/Navaphon001/jenkins-demo-app.git'
-  }
-}
-
+  stages {
+    stage('Checkout') {
+      steps {
+        git branch: 'main',
+            url: 'https://github.com/Navaphon001/jenkins-demo-app.git'
+      }
+    }
 
     stage('Build Image') {
       steps {
@@ -33,6 +34,7 @@ pipeline {
         '''
       }
     }
+  }
 
   post {
     always {
