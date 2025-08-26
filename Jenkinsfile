@@ -7,12 +7,13 @@ pipeline {
   }
   options { timestamps(); skipDefaultCheckout(true) }
 
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm                                     // ใช้ Jenkinsfile จาก repo เดิม
-      }
-    }
+  stage('Checkout') {
+  steps {
+    git branch: 'main',
+        url: 'https://github.com/Navaphon001/jenkins-demo-app.git'
+  }
+}
+
 
     stage('Build Image') {
       steps {
@@ -28,11 +29,10 @@ pipeline {
       steps {
         sh '''
           docker rm -f demo-app 2>/dev/null || true
-          docker run -d --name demo-app -p 5000:5000 jenkins-demo-app:latest
+          docker run -d --name demo-app -p 8081:8081 jenkins-demo-app:latest
         '''
       }
     }
-  }
 
   post {
     always {
