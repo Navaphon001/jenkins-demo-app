@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'docker:24-git' // มี git
+      image 'docker:24-git' // มี git + docker cli
       args "-u 0 -e HOME=/tmp -e DOCKER_CONFIG=/tmp/.docker -v /var/run/docker.sock:/var/run/docker.sock"
     }
   }
@@ -13,6 +13,25 @@ pipeline {
       steps {
         git branch: 'main',
             url: 'https://github.com/Navaphon001/jenkins-demo-app.git'
+      }
+    }
+
+    stage('Test') {
+      // ใช้คอนเทนเนอร์ Python แยกสำหรับรันทดสอบ
+      agent {
+        docker {
+          image 'python:3.9-slim'
+          args "-u 0"
+        }
+      }
+      steps {
+        sh '''
+          pip install --no-cache-dir -r requirements.txt pytest
+          pytest -q --junitxml=test-results.xml
+        '''
+      }
+      post {
+        always { junit 'test-results.xml' }
       }
     }
 
@@ -34,26 +53,6 @@ pipeline {
         '''
       }
     }
-
-    stage('Test') {
-  agent {
-    docker {
-      image 'python:3.9-slim'
-      args "-u 0 -v /var/run/docker.sock:/var/run/docker.sock"
-    }
-  }
-  steps {
-    sh '''
-      pip install --no-cache-dir -r requirements.txt pytest
-      pytest -q --junitxml=test-results.xml
-    '''
-  }
-  post {
-    always { junit 'test-results.xml' }
-  }
-}
-
-
   }
 
   post {
