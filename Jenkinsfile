@@ -36,11 +36,23 @@ pipeline {
     }
 
     stage('Test') {
-    steps {
-        sh 'echo "Running tests..."'
-        sh 'pytest || true'
+  agent {
+    docker {
+      image 'python:3.9-slim'
+      args "-u 0 -v /var/run/docker.sock:/var/run/docker.sock"
     }
+  }
+  steps {
+    sh '''
+      pip install --no-cache-dir -r requirements.txt pytest
+      pytest -q --junitxml=test-results.xml
+    '''
+  }
+  post {
+    always { junit 'test-results.xml' }
+  }
 }
+
 
   }
 
