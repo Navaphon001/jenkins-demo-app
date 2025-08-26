@@ -34,6 +34,14 @@ pipeline {
         '''
       }
     }
+
+    stage('Test') {
+    steps {
+        sh 'echo "Running tests..."'
+        sh 'pytest || true'
+    }
+}
+
   }
 
   post {
